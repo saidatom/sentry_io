@@ -1,0 +1,17 @@
+sentry_io:
+  version: '1.01'
+  js:
+    js/sentry.js: {}
+  dependencies:
+    - sentry_io/sentry-browser
+    - core/drupalSettings
+sentry-browser:
+  remote: 'https://github.com/getsentry/sentry-javascript'
+  version: 5.15.5
+  license:
+    name: BSD-3-Clause
+    url: 'https://github.com/getsentry/sentry-javascript/blob/master/LICENSE'
+    gpl-compatible: true
+  js:
+    js/sentry-browser/bundle.min.js:
+      minified: true

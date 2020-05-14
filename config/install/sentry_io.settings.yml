@@ -1,0 +1,6 @@
+client_key: ''
+environment: ''
+release: ''
+fatal_error_handler: true
+log_levels: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0 }
+javascript_error_handler: false

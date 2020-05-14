@@ -1,0 +1,16 @@
+{
+    "name": "sentry_io",
+    "type": "drupal-module",
+    "description": "Provides integration with Sentry.",
+    "keywords": [
+    ],
+    "homepage": "https://www.drupal.org/project/sentry_io",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/sentry_io",
+        "source": "http://cgit.drupalcode.org/sentry_io"
+    },
+    "require": {
+        "sentry/sdk": "^2.1"
+    }
+}

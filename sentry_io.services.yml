@@ -1,0 +1,14 @@
+services:
+  logger.sentry_io:
+    class: Drupal\sentry_io\Logger\Sentry
+    arguments: ['@config.factory', '@current_user', '@language_manager', '@request_stack']
+    tags:
+      - { name: logger }
+  sentry_io.kernel_subscriber:
+    class: Drupal\sentry_io\EventSubscriber\KernelEventSubscriber
+    arguments:
+      - '@config.factory'
+    calls:
+      - [setContainer, ['@service_container']]
+    tags:
+      - { name: event_subscriber }

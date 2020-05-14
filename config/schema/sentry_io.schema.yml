@@ -1,0 +1,47 @@
+sentry_io.settings:
+  type: config_object
+  label: 'Sentry settings'
+  mapping:
+    client_key:
+      type: string
+      label: 'Sentry DSN (PHP)'
+    environment:
+      type: string
+      label: 'Environment'
+    release:
+      type: string
+      label: 'Release'
+    log_levels:
+      type: mapping
+      label: 'Log levels'
+      mapping:
+        1:
+          type: integer
+          label: 'Emergency'
+        2:
+          type: integer
+          label: 'Alert'
+        3:
+          type: integer
+          label: 'Critical'
+        4:
+          type: integer
+          label: 'Error'
+        5:
+          type: integer
+          label: 'Warning'
+        6:
+          type: integer
+          label: 'Notice'
+        7:
+          type: integer
+          label: 'Info'
+        8:
+          type: integer
+          label: 'Debug'
+    fatal_error_handler:
+      type: boolean
+      label: 'Fatal error handler'
+    javascript_error_handler:
+      type: boolean
+      label: 'JavaScript error handler'
