@@ -1,3 +1,5 @@
+[![Latest Stable Version](https://poser.pugx.org/saidatom/sentry_io/v)](//packagist.org/packages/saidatom/sentry_io) [![Total Downloads](https://poser.pugx.org/saidatom/sentry_io/downloads)](//packagist.org/packages/saidatom/sentry_io) [![Latest Unstable Version](https://poser.pugx.org/saidatom/sentry_io/v/unstable)](//packagist.org/packages/saidatom/sentry_io) [![License](https://poser.pugx.org/saidatom/sentry_io/license)](//packagist.org/packages/saidatom/sentry_io)
+
 CONTENTS OF THIS FILE
 ---------------------
 
