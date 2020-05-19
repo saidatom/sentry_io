@@ -8,8 +8,8 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Utility\Error;
 use Sentry\ClientBuilder;
+use Sentry\SentrySdk;
 use Sentry\Severity;
-use Sentry\State\Hub;
 use Sentry\State\Scope;
 use Symfony\Component\HttpFoundation\RequestStack;
 use function Sentry\captureException as captureExceptionAlias;
@@ -197,7 +197,7 @@ class SentryService implements SentryInterface {
    * Set Sentry client.
    */
   public function catchSentry() {
-    Hub::getCurrent()->bindClient($this->client->getClient());
+    SentrySdk::getCurrentHub()->bindClient($this->client->getClient());
   }
 
 }
