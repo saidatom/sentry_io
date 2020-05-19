@@ -3,19 +3,26 @@
 namespace Drupal\sentry_io\EventSubscriber;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\sentry_io\Service\SentryService;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Class KernelEventSubscriber.
- *
- * @package Drupal\symfony_debug\EventSubscriber
+ * Class SentryEventSubscriber.
  */
-class KernelEventSubscriber implements EventSubscriberInterface, ContainerAwareInterface {
+class SentryEventSubscriber implements EventSubscriberInterface, ContainerAwareInterface {
 
   use ContainerAwareTrait;
+
+  /**
+   * Sentry service.
+   *
+   * @var \Drupal\sentry_io\Service\SentryService
+   */
+  protected $sentry;
 
   /**
    * The config factory.
@@ -27,11 +34,27 @@ class KernelEventSubscriber implements EventSubscriberInterface, ContainerAwareI
   /**
    * Constructs a new Sentry RequestSubscriber.
    *
+   * @param \Drupal\sentry_io\Service\SentryService $sentry
+   *   The configuration factory.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration factory.
    */
-  public function __construct(ConfigFactoryInterface $config_factory) {
+  public function __construct(
+    SentryService $sentry,
+    ConfigFactoryInterface $config_factory
+  ) {
+    $this->sentry = $sentry;
     $this->configFactory = $config_factory;
+  }
+
+  /**
+   * Log all exceptions.
+   *
+   * @param \Symfony\Component\HttpKernel\Event\ExceptionEvent $event
+   *   The event to process.
+   */
+  public function onException(ExceptionEvent $event) {
+    $this->sentry->log($event);
   }
 
   /**
@@ -39,18 +62,17 @@ class KernelEventSubscriber implements EventSubscriberInterface, ContainerAwareI
    */
   public function onRequest() {
     if ($this->configFactory->get('sentry_io.settings')->get('fatal_error_handler') && $this->container) {
-      $this->container->get('logger.sentry_io');
+      $this->container->get('sentry_io.error');
     }
   }
 
   /**
-   * Registers the methods in this class that should be listeners.
-   *
-   * @return array
-   *   An array of event listener definitions.
+   * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
+    $events[KernelEvents::EXCEPTION][] = ['onException', 50];
     $events[KernelEvents::REQUEST][] = ['onRequest', 222];
+
     return $events;
   }
 

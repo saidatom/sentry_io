@@ -3,3 +3,4 @@ type: module
 description: 'Provides integration with Sentry.'
 core_version_requirement: ^8 || ^9
 package: 'Reports'
+configure: system.logging_settings

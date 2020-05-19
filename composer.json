@@ -1,14 +1,19 @@
 {
-    "name": "sentry_io",
+    "name": "saidatom/sentry_io",
     "type": "drupal-module",
     "description": "Provides integration with Sentry.",
     "keywords": [
+        "sentry",
+        "drupal",
+        "error",
+        "php"
+
     ],
-    "homepage": "https://www.drupal.org/project/sentry_io",
+    "homepage": "https://github.com/saidatom/sentry_io",
     "minimum-stability": "dev",
     "support": {
-        "issues": "https://www.drupal.org/project/issues/sentry_io",
-        "source": "http://cgit.drupalcode.org/sentry_io"
+        "issues": "https://github.com/saidatom/sentry_io/issues",
+        "source": "https://github.com/saidatom/sentry_io"
     },
     "require": {
         "sentry/sdk": "^2.1"

@@ -1,29 +1,25 @@
 <?php
 
-namespace Drupal\sentry_io\Logger;
+namespace Drupal\sentry_io\Service;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Logger\RfcLogLevel;
-use Drupal\Core\Logger\RfcLoggerTrait;
 use Drupal\Core\Session\AccountProxyInterface;
-use InvalidArgumentException;
-use Psr\Log\LoggerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Utility\Error;
 use Sentry\ClientBuilder;
-use Sentry\ErrorHandler;
 use Sentry\Severity;
 use Sentry\State\Hub;
 use Sentry\State\Scope;
 use Symfony\Component\HttpFoundation\RequestStack;
+use function Sentry\captureException as captureExceptionAlias;
 use function Sentry\captureLastError as captureLastErrorAlias;
 use function Sentry\configureScope as configureScopeAlias;
 
 /**
- * Logs events to Sentry.
+ * Class SentryService.
  */
-class Sentry implements LoggerInterface {
-
-  use RfcLoggerTrait;
+class SentryService implements SentryInterface {
 
   /**
    * Sentry client.
@@ -31,13 +27,6 @@ class Sentry implements LoggerInterface {
    * @var \ClientBuilder|null
    */
   public $client;
-
-  /**
-   * Set DSN Sentry.
-   *
-   * @var string|null
-   */
-  public $dsn;
 
   /**
    * Drupal\Core\Config\ConfigFactoryInterface definition.
@@ -82,6 +71,13 @@ class Sentry implements LoggerInterface {
   private $loglevels;
 
   /**
+   * Set DSN Sentry.
+   *
+   * @var string|null
+   */
+  public $dsn;
+
+  /**
    * Drupal\Core\Config\ImmutableConfig definition.
    *
    * @var \Drupal\Core\Config\ImmutableConfig
@@ -90,15 +86,6 @@ class Sentry implements LoggerInterface {
 
   /**
    * Constructs a new SentryService object.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The configuration factory.
-   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
-   *   The current user account.
-   * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
-   *   The language manager.
-   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
-   *   The request stack.
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
@@ -111,46 +98,42 @@ class Sentry implements LoggerInterface {
     $this->languageManager = $language_manager;
     $this->requestStack = $request_stack;
     $this->config = $this->configFactory->get('sentry_io.settings');
-    $this->loglevels = array_filter($this->config->get('log_levels'));
+    $this->loglevels = $this->config->get('log_levels') ? array_filter($this->config->get('log_levels')) : '';
     $this->dsn = empty($_SERVER['SENTRY_DSN']) ? $this->config->get('client_key') : $_SERVER['SENTRY_DSN'];
     $this->severity = NULL;
     $this->setClient();
     if (!$this->client) {
-      // Sad sentry.
       return;
     }
     $this->catchSentry();
     if ($this->client && $this->config->get('fatal_error_handler')) {
-      //ErrorHandler::registerOnceErrorHandler();
+      captureLastErrorAlias();
     }
   }
 
   /**
    * Logs with an arbitrary level.
    *
-   * @param mixed $level
-   *   Error level.
-   * @param string $message
-   *   Error message.
-   * @param array $context
-   *   Error object.
+   * @param object $event
+   *   Catch error.
    */
-  public function log($level, $message, array $context = []) {
-    if (!$this->client && !array_key_exists($level, $this->loglevels)) {
-      // Sad sentry.
+  public function log($event) {
+    $exception = $event->getThrowable();
+    $error = Error::decodeException($exception);
+    if (!$this->client && !array_key_exists($error['severity_level'], $this->loglevels)) {
       return;
     }
-    $this->levels($level);
+    $this->levels($error['severity_level']);
     configureScopeAlias(function (Scope $scope): void {
       $scope->setLevel($this->severity);
       $scope->setUser([
         'email' => $this->currentUser ? $this->currentUser->getEmail() : '',
         'id' => $this->currentUser ? $this->currentUser->id() : 0,
         'ip_address' => $this->requestStack && ($request = $this->requestStack->getCurrentRequest()) ? $request->getClientIp() : '',
-      ]);
+      ], TRUE);
       $scope->setTag('page_locale', $this->languageManager->getCurrentLanguage()->getId());
     });
-    captureLastErrorAlias();
+    captureExceptionAlias($exception);
   }
 
   /**
