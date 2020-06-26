@@ -118,7 +118,7 @@ class SentryService implements SentryInterface {
    *   Catch error.
    */
   public function log($event) {
-    $exception = $event->getThrowable();
+    $exception = $event->getException();
     $error = Error::decodeException($exception);
     if (!$this->client && !array_key_exists($error['severity_level'], $this->loglevels)) {
       return;
