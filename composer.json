@@ -2,6 +2,7 @@
     "name": "saidatom/sentry_io",
     "type": "drupal-module",
     "description": "Provides integration with Sentry.",
+    "license": "GPL-2.0-or-later",
     "keywords": [
         "sentry",
         "drupal",
@@ -16,6 +17,7 @@
         "source": "https://github.com/saidatom/sentry_io"
     },
     "require": {
-        "sentry/sdk": "^2.1"
+        "sentry/sdk": "^2.1",
+        "drupal/core": "^8 || ^9"
     }
 }
